@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ample — Capabilities</title>
+  <link rel="stylesheet" href="https://use.typekit.net/zkv0uqb.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FFFFFF;
+      --ink: #1A1A1A;
+      --ink-light: #555;
+      --blue: #30BED6;
+      --red: #D43333;
+      --green: #22994A;
+      --yellow: #FFE033;
+    }
+
+    :root.dark {
+      --bg: #111111;
+      --ink: #E8E8E8;
+      --ink-light: #999;
+      --red: #E85555;
+      --green: #33BB66;
+      --yellow: #FFE033;
+    }
+
+    :root.dark .cap-card { border-color: var(--ink); }
+    :root.dark .cap-detail-inner { border-color: var(--ink); }
+    :root.dark .cta-section { border-color: var(--ink); }
+    :root.dark .agent-invite-inner { background: rgba(48, 190, 214, 0.1); }
+    :root.dark .proof-block { background: rgba(48, 190, 214, 0.06); }
+    :root.dark .cap-close-x { -webkit-text-stroke-color: var(--ink); }
+    :root.dark .agent-link { color: var(--bg); background: var(--ink); }
+    :root.dark .cta-button { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+    :root.dark .marker { color: #1A1A1A; }
+    :root.dark .hl { color: #1A1A1A; }
+    :root.dark .peek-float { background: #fff; color: #1A1A1A; }
+    :root.dark .cap-card.open .cap-problem { color: #BBBBBB; opacity: 1; }
+    :root.dark .cap-card.open .cap-problem .hl { color: #BBBBBB; }
+
+    /* ── Utility bar ─────────────────────────────────────────────────────── */
+
+    .util-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #F0F0F0;
+      border-bottom: 1px solid #D4D4D4;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: "Inter", -apple-system, system-ui, sans-serif;
+      font-size: 11px;
+      color: #666;
+      -webkit-font-smoothing: auto;
+    }
+
+    .util-bar-label {
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .util-bar-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .util-bar-controls label {
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .util-toggle {
+      position: relative;
+      width: 34px;
+      height: 18px;
+      background: #CCC;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border: none;
+      padding: 0;
+      outline: none;
+    }
+
+    .util-toggle.on {
+      background: #555;
+    }
+
+    .util-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .util-toggle.on::after {
+      transform: translateX(16px);
+    }
+
+    body {
+      font-family: "canada-type-gibson", sans-serif;
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    /* ── Hero ────────────────────────────────────────────────────────────── */
+
+    .hero {
+      padding: 120px 0 88px;
+    }
+
+    .hero h1 {
+      font-size: 80px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      max-width: 100%;
+    }
+
+    .hero p {
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-top: 24px;
+      max-width: 560px;
+      line-height: 1.4;
+    }
+
+    /* ── Section ─────────────────────────────────────────────────────────── */
+
+    .cap-section {
+      padding: 0 0 48px;
+    }
+
+    .cap-intro {
+      font-size: 32px;
+      font-weight: 700;
+      font-style: italic;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 40px;
+    }
+
+    .cap-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Card ─────────────────────────────────────────────────────────────── */
+
+    .cap-card {
+      border: 3px solid var(--ink);
+      padding: 32px 36px 36px;
+      cursor: pointer;
+      position: relative;
+      transition: box-shadow 0.15s ease;
+    }
+
+    .cap-card:hover:not(.open) {
+      box-shadow: 8px 8px 0 0 var(--blue);
+    }
+
+    .cap-card.open {
+      cursor: default;
+      box-shadow: none;
+    }
+
+    /* ── Close button ────────────────────────────────────────────────────── */
+
+    .cap-close {
+      position: absolute;
+      top: 32px;
+      right: 36px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s ease;
+    }
+
+    .cap-card.open .cap-close {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .cap-close:hover {
+      opacity: 1 !important;
+      text-decoration: underline;
+    }
+
+    .cap-close-x {
+      font-size: 20px;
+      font-weight: 900;
+      text-decoration: none !important;
+      display: inline-block;
+      -webkit-text-stroke: 1.5px var(--ink);
+    }
+
+    /* ── Name ─────────────────────────────────────────────────────────────── */
+
+    .cap-name {
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 18px;
+    }
+
+    /* ── Problem / Fix pairs ─────────────────────────────────────────────── */
+
+    .cap-pairs {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* Problem line */
+    .cap-problem {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 0;
+      transition: all 0.3s ease;
+    }
+
+    .cap-problem .hl {
+      background: var(--yellow);
+      padding: 2px 6px 4px;
+      margin: 0 -4px;
+      transition: background 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+    }
+
+    .x-mark {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--red);
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    /* When open, cross out the problem */
+    .cap-card.open .cap-problem {
+      text-decoration: line-through;
+      text-decoration-color: var(--red);
+      text-decoration-thickness: 2px;
+      color: var(--ink-light);
+      opacity: 0.45;
+    }
+
+    .cap-card.open .cap-problem .hl {
+      background: transparent;
+      padding: 0;
+      margin: 0 -8px;
+    }
+
+    /* Fix line */
+    .cap-fix {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      padding: 0;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.25s ease,
+                  padding 0.35s ease;
+    }
+
+    .cap-card.open .cap-fix {
+      max-height: 60px;
+      opacity: 1;
+      padding: 4px 0 14px;
+    }
+
+    .chk {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--green);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    /* ── Expanded detail ─────────────────────────────────────────────────── */
+
+    .cap-detail {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s ease;
+    }
+
+    .cap-card.open .cap-detail {
+      max-height: 500px;
+      opacity: 1;
+    }
+
+    .cap-detail-inner {
+      padding: 24px 0 4px;
+      border-top: 3px solid var(--ink);
+      margin-top: 10px;
+      max-width: 560px;
+    }
+
+    .detail-intro {
+      font-size: 22px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+
+    .detail-description {
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--ink-light);
+      line-height: 1.6;
+    }
+
+    .detail-description strong {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .detail-description .marker {
+      background: var(--yellow);
+      padding: 1px 5px 3px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* Client proof as quote */
+    .proof-block {
+      margin-top: 24px;
+      padding: 16px 20px 16px 18px;
+      border-left: 4px solid var(--blue);
+      background: rgba(48, 190, 214, 0.08);
+    }
+
+    .proof-quote {
+      font-size: 17px;
+      font-weight: 500;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .proof-attr {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink-light);
+      margin-top: 8px;
+    }
+
+    /* ── Floating peek ───────────────────────────────────────────────────── */
+
+    .peek-float {
+      position: fixed;
+      pointer-events: none;
+      z-index: 999;
+      font-family: "canada-type-gibson", sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      font-style: italic;
+      color: #fff;
+      background: var(--ink);
+      padding: 12px 24px;
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(-8deg) scale(0.8);
+      transition: opacity 0.15s ease, transform 0.15s ease, background 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .peek-float.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(-8deg) scale(1);
+      animation: peek-drift 2.5s ease-in-out infinite;
+    }
+
+    @keyframes peek-drift {
+      0%   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+      25%  { transform: translate(-50%, -50%) rotate(-5deg) scale(1.03); }
+      50%  { transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
+      75%  { transform: translate(-50%, -50%) rotate(-6deg) scale(1.02); }
+      100% { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+    }
+
+    .peek-arrow {
+      display: inline-block;
+      margin-left: 6px;
+      font-style: normal;
+      font-size: 26px;
+      line-height: 1;
+      vertical-align: middle;
+      animation: arrow-bounce 1.2s ease-in-out infinite;
+    }
+
+    @keyframes arrow-bounce {
+      0%, 100% { transform: translateX(0); }
+      50%      { transform: translateX(5px); }
+    }
+
+    /* ── Work line ────────────────────────────────────────────────────────── */
+
+    .work-line {
+      padding: 48px 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .work-line a {
+      color: var(--ink);
+      text-decoration: none;
+      background: var(--yellow);
+      padding: 2px 8px 4px;
+      transition: background 0.15s ease;
+    }
+
+    .work-line a:hover {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    /* ── Agent invite ────────────────────────────────────────────────────── */
+
+    .agent-invite {
+      padding: 0 0 48px;
+    }
+
+    .agent-invite-inner {
+      background: rgba(48, 190, 214, 0.08);
+      padding: 36px 40px;
+    }
+
+    .agent-invite-head {
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--ink-light);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .agent-links {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .agent-link {
+      display: inline-block;
+      font-family: "canada-type-gibson", sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--ink);
+      padding: 12px 24px;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .agent-link:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 3px 3px 0 0 var(--blue);
+    }
+
+    .agent-download {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 1px;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .agent-download:hover {
+      color: var(--blue);
+      border-color: var(--blue);
+    }
+
+    /* ── CTA ──────────────────────────────────────────────────────────────── */
+
+    .cta-section {
+      padding: 88px 0;
+      text-align: center;
+      border-top: 3px solid var(--ink);
+    }
+
+    .cta-section h2 {
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 28px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      font-family: "canada-type-gibson", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--ink);
+      padding: 16px 36px;
+      text-decoration: none;
+      border: 3px solid var(--ink);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .cta-button:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 4px 4px 0 0 var(--blue);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="util-bar">
+    <span class="util-bar-label">Low-fidelity design — capabilities page</span>
+    <div class="util-bar-controls">
+      <label for="dark-toggle">Dark mode</label>
+      <button class="util-toggle" id="dark-toggle" role="switch" aria-checked="false"></button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Good brands deserve<br>to be amplified.</h1>
+      <p>Strategy, website, and marketing. Built together by one team. That's how we do it.</p>
+    </div>
+  </section>
+
+  <section class="cap-section">
+    <div class="container">
+      <div class="cap-intro">Any of these sound familiar?</div>
+
+      <div class="cap-stack">
+
+        <!-- Strategy -->
+        <div class="cap-card" data-cap="0">
+          <div class="cap-close">close <span class="cap-close-x">&#10005;</span></div>
+          <div class="cap-name">Strategy</div>
+          <div class="cap-pairs">
+            <div class="cap-pair">
+              <div class="cap-problem"><span class="x-mark">&#10005;</span> <span class="hl">Something's broken</span> and nobody agrees why</div>
+              <div class="cap-fix"><span class="chk">&#10003;</span> We find the real problem before anyone draws a wireframe</div>
+            </div>
+            <div class="cap-pair">
+              <div class="cap-problem"><span class="x-mark">&#10005;</span> Ten people, <span class="hl">ten priorities</span></div>
+              <div class="cap-fix"><span class="chk">&#10003;</span> One roadmap your whole team signs off on</div>
+            </div>
+          </div>
+          <div class="cap-detail">
+            <div class="cap-detail-inner">
+              <div class="detail-intro">Here's what actually happens.</div>
+              <div class="detail-description">
+                We talk to your people. Stakeholders, customers, the data. Not to confirm what you already think. To find <span class="marker">what nobody's said out loud yet</span>. The output is a plan your team actually agrees on. Most clients start here.
+              </div>
+              <div class="proof-block">
+                <div class="proof-quote">Their website felt like an insurance agency. 14 interviews later, we knew why. Parents couldn't find their club, couldn't tell the programs apart, and gave up and called.</div>
+                <div class="proof-attr">Kings Hammer FC</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content & Growth -->
+        <div class="cap-card" data-cap="1">
+          <div class="cap-close">close <span class="cap-close-x">&#10005;</span></div>
+          <div class="cap-name">Content & Growth</div>
+          <div class="cap-pairs">
+            <div class="cap-pair">
+              <div class="cap-problem"><span class="x-mark">&#10005;</span> <span class="hl">Nobody can find you</span> online</div>
+              <div class="cap-fix"><span class="chk">&#10003;</span> Your audience finds you first</div>
+            </div>
+            <div class="cap-pair">
+              <div class="cap-problem"><span class="x-mark">&#10005;</span> Your content <span class="hl">doesn't sound like you</span></div>
+              <div class="cap-fix"><span class="chk">&#10003;</span> It does now. And it stays that way.</div>
+            </div>
+          </div>
+          <div class="cap-detail">
+            <div class="cap-detail-inner">
+              <div class="detail-intro">Not just traffic. The right traffic.</div>
+              <div class="detail-description">
+                We figure out what your audience is actually searching for and build content around it. Not keyword stuffing. Real answers to real questions. The goal is <span class="marker">the right people finding you before they ever pick up the phone</span>. We write in your voice and build a system so it doesn't drift when we're not around.
+              </div>
+              <div class="proof-block">
+                <div class="proof-quote">Fleet managers were searching for exactly what Mike Albert does. They just couldn't find them. We fixed the content, fixed the search presence. Now they show up first.</div>
+                <div class="proof-attr">Mike Albert</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Web Design & Dev -->
+        <div class="cap-card" data-cap="2">
+          <div class="cap-close">close <span class="cap-close-x">&#10005;</span></div>
+          <div class="cap-name">Web Design & Dev</div>
+          <div class="cap-pairs">
+            <div class="cap-pair">
+              <div class="cap-problem"><span class="x-mark">&#10005;</span> Your team <span class="hl">can't update the site</span> without calling someone</div>
+              <div class="cap-fix"><span class="chk">&#10003;</span> Built on a CMS your team actually uses</div>
+            </div>
+            <div class="cap-pair">
+              <div class="cap-problem"><span class="x-mark">&#10005;</span> You've <span class="hl">outgrown your platform</span></div>
+              <div class="cap-fix"><span class="chk">&#10003;</span> Designed to grow with you, not get rebuilt every 3 years</div>
+            </div>
+          </div>
+          <div class="cap-detail">
+            <div class="cap-detail-inner">
+              <div class="detail-intro">Not a template with your logo on it.</div>
+              <div class="detail-description">
+                Custom design, custom development, on a platform your team can actually manage <span class="marker">without calling us every time something needs to change</span>. Accessibility and speed are built in from the start. Not bolted on after someone complains.
+              </div>
+              <div class="proof-block">
+                <div class="proof-quote">They started as a Cincinnati estate sale company with an idea. We built the platform. They went national. The site scaled with them because it was built to.</div>
+                <div class="proof-attr">EBTH</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ongoing Support -->
+        <div class="cap-card" data-cap="3">
+          <div class="cap-close">close <span class="cap-close-x">&#10005;</span></div>
+          <div class="cap-name">Ongoing Support</div>
+          <div class="cap-pairs">
+            <div class="cap-pair">
+              <div class="cap-problem"><span class="x-mark">&#10005;</span> The agency <span class="hl">disappears after launch</span></div>
+              <div class="cap-fix"><span class="chk">&#10003;</span> Same team, every week, years in</div>
+            </div>
+            <div class="cap-pair">
+              <div class="cap-problem"><span class="x-mark">&#10005;</span> New work comes up and <span class="hl">nobody knows your business</span></div>
+              <div class="cap-fix"><span class="chk">&#10003;</span> We already have the context. No starting over.</div>
+            </div>
+          </div>
+          <div class="cap-detail">
+            <div class="cap-detail-inner">
+              <div class="detail-intro">We don't hand off and disappear.</div>
+              <div class="detail-description">
+                The same people who built it are the ones growing it with you. Updates, content, campaigns, reporting. <span class="marker">When something new comes up, we don't re-onboard.</span> We already know your business. That's the whole point.
+              </div>
+              <div class="proof-block">
+                <div class="proof-quote">Some of our team is at Crossroads every week. Years in. Not as vendors. As the people who know where everything is and why it's there.</div>
+                <div class="proof-attr">Crossroads</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="work-line">
+    <div class="container">
+      We've been doing this since 2007. The proof is in the work. <a href="#">See our work &#8594;</a>
+    </div>
+  </div>
+
+  <section class="agent-invite">
+    <div class="container">
+      <div class="agent-invite-inner">
+        <div class="agent-invite-head">Here's everything about us in one file. Drop it in. Ask whatever you want.</div>
+        <div class="agent-links">
+          <a href="https://ample-website.netlify.app/capabilities-compare" class="agent-link" target="_blank">Ask Claude &#8594;</a>
+          <a href="https://ample-website.netlify.app/capabilities-compare" class="agent-link" target="_blank">Ask ChatGPT &#8594;</a>
+          <a href="#" class="agent-download">ample.md &#8595;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <h2>Ready when you are.</h2>
+      <a href="#" class="cta-button">What are you working on?</a>
+    </div>
+  </section>
+
+  <div class="peek-float" id="peek-float">how we help <span class="peek-arrow">&#10140;</span></div>
+
+  <script>
+    const cards = document.querySelectorAll('.cap-card');
+    const peek = document.getElementById('peek-float');
+
+    cards.forEach(card => {
+      const closeBtn = card.querySelector('.cap-close');
+
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        card.classList.remove('open');
+      });
+
+      card.addEventListener('click', () => {
+        const wasOpen = card.classList.contains('open');
+        cards.forEach(c => c.classList.remove('open'));
+        if (!wasOpen) {
+          card.classList.add('open');
+          peek.classList.remove('visible');
+        }
+      });
+
+      card.addEventListener('mouseenter', () => {
+        if (!card.classList.contains('open')) peek.classList.add('visible');
+      });
+
+      card.addEventListener('mouseleave', () => {
+        peek.classList.remove('visible');
+      });
+
+      card.addEventListener('mousemove', (e) => {
+        if (card.classList.contains('open')) { peek.classList.remove('visible'); return; }
+        peek.style.left = e.clientX + 'px';
+        peek.style.top = (e.clientY - 10) + 'px';
+      });
+    });
+
+    // Dark mode toggle
+    const toggle = document.getElementById('dark-toggle');
+    toggle.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      toggle.classList.toggle('on', isDark);
+      toggle.setAttribute('aria-checked', isDark);
+    });
+  </script>
+
+</body>
+</html>
